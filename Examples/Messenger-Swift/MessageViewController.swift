@@ -71,6 +71,15 @@ class MessageViewController: SLKTextViewController {
         self.leftButton.setImage(UIImage(named: "icn_upload"), for: UIControlState())
         self.leftButton.tintColor = UIColor.gray
         
+        self.textInputbar.leftButton1.setImage(UIImage(named: "icn_arrow_up"), for: UIControlState())
+        self.textInputbar.leftButton1.tintColor = UIColor.gray
+
+        self.textInputbar.leftButton2.setImage(UIImage(named: "icn_typing"), for: UIControlState())
+        self.textInputbar.leftButton2.tintColor = UIColor.gray
+
+        self.textInputbar.leftButton3.setImage(UIImage(named: "icn_pic"), for: UIControlState())
+        self.textInputbar.leftButton3.tintColor = UIColor.gray
+
         self.rightButton.setTitle(NSLocalizedString("Send", comment: ""), for: UIControlState())
         
         self.textInputbar.autoHideRightButton = true

@@ -42,8 +42,17 @@ NS_ASSUME_NONNULL_BEGIN
 /** The custom input accessory view, used as empty achor view to detect the keyboard frame. */
 @property (nonatomic, readonly, strong) SLKInputAccessoryView *inputAccessoryView;
 
-/** The left action button action. */
-@property (nonatomic, strong) UIButton *leftButton;
+/** The left flip action button action. */
+@property (nonatomic, strong) UIButton *flipButton;
+
+/** The left action button 1 action. */
+@property (nonatomic, strong) UIButton *leftButton1;
+
+/** The left action button 1 action. */
+@property (nonatomic, strong) UIButton *leftButton2;
+
+/** The left action button 1 action. */
+@property (nonatomic, strong) UIButton *leftButton3;
 
 /** The right action button action. */
 @property (nonatomic, strong) UIButton *rightButton;

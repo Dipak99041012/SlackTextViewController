@@ -30,6 +30,21 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 @property (nonatomic, strong) NSLayoutConstraint *rightButtonTopMarginC;
 @property (nonatomic, strong) NSLayoutConstraint *rightButtonBottomMarginC;
 @property (nonatomic, strong) NSLayoutConstraint *editorContentViewHC;
+
+@property (nonatomic, strong) NSLayoutConstraint *leftButton1WC;
+@property (nonatomic, strong) NSLayoutConstraint *leftButton1HC;
+
+@property (nonatomic, strong) NSLayoutConstraint *leftButton2WC;
+@property (nonatomic, strong) NSLayoutConstraint *leftButton2HC;
+
+@property (nonatomic, strong) NSLayoutConstraint *leftButton3WC;
+@property (nonatomic, strong) NSLayoutConstraint *leftButton3HC;
+
+@property (nonatomic, strong) NSLayoutConstraint *leftButtonBottomMarginC1;
+@property (nonatomic, strong) NSLayoutConstraint *leftButtonBottomMarginC2;
+@property (nonatomic, strong) NSLayoutConstraint *leftButtonBottomMarginC3;
+
+
 @property (nonatomic, strong) NSArray *charCountLabelVCs;
 
 @property (nonatomic, strong) UILabel *charCountLabel;
@@ -39,7 +54,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 @property (nonatomic, strong) Class textViewClass;
 
 @property (nonatomic, getter=isHidden) BOOL hidden; // Required override
-
+@property (nonatomic, strong) SLKTextView *hiddenTextField;
+@property (nonatomic, strong) UITextField *inputField;
 @end
 
 @implementation SLKTextInputbar
@@ -85,11 +101,15 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     self.contentInset = UIEdgeInsetsMake(5.0, 8.0, 5.0, 8.0);
     
     [self addSubview:self.editorContentView];
-    [self addSubview:self.leftButton];
+    [self addSubview:self.flipButton];
+    [self addSubview:self.leftButton1];
+    [self addSubview:self.leftButton2];
+    [self addSubview:self.leftButton3];
     [self addSubview:self.rightButton];
     [self addSubview:self.textView];
     [self addSubview:self.charCountLabel];
     [self addSubview:self.contentView];
+    [self addSubview:self.hiddenTextField];
     
     [self slk_setupViewConstraints];
     [self slk_updateConstraintConstants];
@@ -100,7 +120,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     [self slk_registerNotifications];
     
     [self slk_registerTo:self.layer forSelector:@selector(position)];
-    [self slk_registerTo:self.leftButton.imageView forSelector:@selector(image)];
+    [self slk_registerTo:self.flipButton.imageView forSelector:@selector(image)];
     [self slk_registerTo:self.rightButton.titleLabel forSelector:@selector(font)];
 }
 
@@ -139,7 +159,6 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         _textView.translatesAutoresizingMaskIntoConstraints = NO;
         _textView.font = [UIFont systemFontOfSize:15.0];
         _textView.maxNumberOfLines = [self slk_defaultNumberOfLines];
-        
         _textView.keyboardType = UIKeyboardTypeTwitter;
         _textView.returnKeyType = UIReturnKeyDefault;
         _textView.enablesReturnKeyAutomatically = YES;
@@ -174,15 +193,49 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     return _inputAccessoryView;
 }
 
-- (UIButton *)leftButton
+- (UIButton *)flipButton
 {
-    if (!_leftButton) {
-        _leftButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        _leftButton.translatesAutoresizingMaskIntoConstraints = NO;
-        _leftButton.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    if (!_flipButton) {
+        _flipButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        _flipButton.translatesAutoresizingMaskIntoConstraints = NO;
+        _flipButton.titleLabel.font = [UIFont systemFontOfSize:15.0];
+        [_flipButton addTarget:self action:@selector(didPressLeftButton:) forControlEvents:UIControlEventTouchUpInside];
+
     }
-    return _leftButton;
+    return _flipButton;
 }
+
+- (UIButton *)leftButton1
+{
+    if (!_leftButton1) {
+        _leftButton1 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _leftButton1.translatesAutoresizingMaskIntoConstraints = NO;
+        _leftButton1.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    }
+    return _leftButton1;
+}
+
+- (UIButton *)leftButton2
+{
+    if (!_leftButton2) {
+        _leftButton2 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _leftButton2.translatesAutoresizingMaskIntoConstraints = NO;
+        _leftButton2.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    }
+    return _leftButton2;
+}
+
+- (UIButton *)leftButton3
+{
+    if (!_leftButton3) {
+        _leftButton3 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _leftButton3.translatesAutoresizingMaskIntoConstraints = NO;
+        _leftButton3.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    }
+    return _leftButton3;
+}
+
+
 
 - (UIButton *)rightButton
 {
@@ -197,6 +250,13 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         [_rightButton setTitle:title forState:UIControlStateNormal];
     }
     return _rightButton;
+}
+
+- (UITextView *)hiddenTextField {
+    if (!_hiddenTextField) {
+        _hiddenTextField = [[SLKTextView alloc] init];
+    }
+    return _hiddenTextField;
 }
 
 - (UIView *)editorContentView
@@ -636,13 +696,59 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     [self layoutIfNeeded];
 }
 
+- (void)slk_didBeginEditing:(NSNotification *)notification
+{
+    if (![notification.object isEqual:self.textView]) {
+        return;
+    }
+    CGSize leftButtonSize = [self.flipButton imageForState:self.flipButton.state].size;
+    self.leftButtonWC.constant = leftButtonSize.width;
+    self.leftButton1WC.constant = 0;
+    self.leftButton2WC.constant = 0;
+    self.leftButton3WC.constant = 0;
+    self.leftButton1HC.constant = 0;
+    self.leftButton2HC.constant = 0;
+    self.leftButton3HC.constant = 0;
+
+    // Do something
+}
+
+
+- (void)slk_didEndEditing:(NSNotification *)notification
+{
+    if (![notification.object isEqual:self.textView]) {
+        return;
+    }
+    self.leftButtonWC.constant = 0;
+
+    CGSize leftButtonSize1 = [self.flipButton imageForState:self.leftButton1.state].size;
+    CGSize leftButtonSize2 = [self.flipButton imageForState:self.leftButton2.state].size;
+    CGSize leftButtonSize3 = [self.flipButton imageForState:self.leftButton3.state].size;
+    self.leftButton1WC.constant = leftButtonSize1.height;
+    self.leftButton2WC.constant = leftButtonSize2.height;
+    self.leftButton3WC.constant = leftButtonSize3.height;
+    self.leftButton1HC.constant = leftButtonSize1.width;
+    self.leftButton2HC.constant = leftButtonSize2.width;
+    self.leftButton3HC.constant = leftButtonSize3.width;
+
+    // Do something
+}
+
+- (void)didPressLeftButton:(UIButton *)btn {
+    if (self.textView.isFirstResponder) {
+        [self.hiddenTextField becomeFirstResponder];
+    }
+}
 
 #pragma mark - View Auto-Layout
 
 - (void)slk_setupViewConstraints
 {
     NSDictionary *views = @{@"textView": self.textView,
-                            @"leftButton": self.leftButton,
+                            @"leftButton": self.flipButton,
+                            @"leftButton1": self.leftButton1,
+                            @"leftButton2": self.leftButton2,
+                            @"leftButton3": self.leftButton3,
                             @"rightButton": self.rightButton,
                             @"editorContentView": self.editorContentView,
                             @"charCountLabel": self.charCountLabel,
@@ -652,10 +758,14 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     NSDictionary *metrics = @{@"top" : @(self.contentInset.top),
                               @"left" : @(self.contentInset.left),
                               @"right" : @(self.contentInset.right),
+                              @"padding":@(4)
                               };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(0)]-(<=left)-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(0)]-(<=padding)-[leftButton1(0)]-(padding)-[leftButton2(0)]-(padding)-[leftButton3(0)]-(<=padding)-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton1(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton2(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton3(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[rightButton]-(<=0)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left@250)-[charCountLabel(<=50@1000)]-(right@750)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[editorContentView(0)]-(<=top)-[textView(0@999)]-(0)-|" options:0 metrics:metrics views:views]];
@@ -668,9 +778,23 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     self.contentViewHC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.contentView secondItem:nil];;
     self.contentViewHC.active = NO; // Disabled by default, so the height is calculated with the height of its subviews
     
-    self.leftButtonWC = [self slk_constraintForAttribute:NSLayoutAttributeWidth firstItem:self.leftButton secondItem:nil];
-    self.leftButtonHC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.leftButton secondItem:nil];
-    self.leftButtonBottomMarginC = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.leftButton];
+    self.leftButtonWC = [self slk_constraintForAttribute:NSLayoutAttributeWidth firstItem:self.flipButton secondItem:nil];
+    self.leftButtonHC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.flipButton secondItem:nil];
+    
+    self.leftButton1WC = [self slk_constraintForAttribute:NSLayoutAttributeWidth firstItem:self.leftButton1 secondItem:nil];
+    self.leftButton1HC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.leftButton1 secondItem:nil];
+
+    self.leftButton2WC = [self slk_constraintForAttribute:NSLayoutAttributeWidth firstItem:self.leftButton2 secondItem:nil];
+    self.leftButton2HC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.leftButton2 secondItem:nil];
+
+    self.leftButton3WC = [self slk_constraintForAttribute:NSLayoutAttributeWidth firstItem:self.leftButton3 secondItem:nil];
+    self.leftButton3HC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.leftButton3 secondItem:nil];
+
+    self.leftButtonBottomMarginC1 = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.leftButton1];
+    self.leftButtonBottomMarginC2 = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.leftButton2];
+    self.leftButtonBottomMarginC3 = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.leftButton3];
+    
+    self.leftButtonBottomMarginC = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.flipButton];
 
     self.leftMarginWC = [[self slk_constraintsForAttribute:NSLayoutAttributeLeading] firstObject];
     
@@ -686,6 +810,14 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     CGFloat zero = 0.0;
     
     self.textViewBottomMarginC.constant = self.slk_bottomMargin;
+    self.leftButton1WC.constant = zero;
+    self.leftButton1HC.constant = zero;
+    
+    self.leftButton2WC.constant = zero;
+    self.leftButton2HC.constant = zero;
+    
+    self.leftButton3WC.constant = zero;
+    self.leftButton3HC.constant = zero;
 
     if (self.isEditing)
     {
@@ -697,15 +829,21 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         self.leftButtonBottomMarginC.constant = zero;
         self.rightButtonWC.constant = zero;
         self.rightMarginWC.constant = zero;
+        
+
     }
     else {
         self.editorContentViewHC.constant = zero;
         
-        CGSize leftButtonSize = [self.leftButton imageForState:self.leftButton.state].size;
+        CGSize leftButtonSize = [self.flipButton imageForState:self.flipButton.state].size;
         
         if (leftButtonSize.width > 0) {
             self.leftButtonHC.constant = roundf(leftButtonSize.height);
             self.leftButtonBottomMarginC.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0) + self.slk_contentViewHeight / 2.0;
+            
+            self.leftButtonBottomMarginC1.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0) + self.slk_contentViewHeight / 2.0;
+            self.leftButtonBottomMarginC2.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0) + self.slk_contentViewHeight / 2.0;
+            self.leftButtonBottomMarginC3.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0) + self.slk_contentViewHeight / 2.0;
         }
         
         self.leftButtonWC.constant = roundf(leftButtonSize.width);
@@ -719,10 +857,20 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         
         self.rightButtonTopMarginC.constant = rightVerMargin;
         self.rightButtonBottomMarginC.constant = rightVerBottomMargin;
+        
     }
 }
 
+- (BOOL)isFirstResponder {
+    if ([self.textView isFirstResponder] || [self.hiddenTextField isFirstResponder]) {
+        return  YES;
+    }
+    return NO;
+}
 
+- (BOOL)resignFirstResponder {
+    return [self.textView resignFirstResponder] || [self.hiddenTextField resignFirstResponder];
+}
 #pragma mark - Observers
 
 - (void)slk_registerTo:(id)object forSelector:(SEL)selector
@@ -748,7 +896,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
             [[NSNotificationCenter defaultCenter] postNotificationName:SLKTextInputbarDidMoveNotification object:self userInfo:@{@"origin": [NSValue valueWithCGPoint:self.previousOrigin]}];
         }
     }
-    else if ([object isEqual:self.leftButton.imageView] && [keyPath isEqualToString:NSStringFromSelector(@selector(image))]) {
+    else if (([object isEqual:self.flipButton.imageView] || [object isEqual:self.leftButton1.imageView] )&& [keyPath isEqualToString:NSStringFromSelector(@selector(image))]) {
         
         UIImage *newImage = change[NSKeyValueChangeNewKey];
         UIImage *oldImage = change[NSKeyValueChangeOldKey];
@@ -776,6 +924,9 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didChangeTextViewText:) name:UITextViewTextDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didChangeTextViewContentSize:) name:SLKTextViewContentSizeDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didChangeContentSizeCategory:) name:UIContentSizeCategoryDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didBeginEditing:) name:UITextViewTextDidBeginEditingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(slk_didEndEditing:) name:UITextViewTextDidEndEditingNotification object:nil];
+
 }
 
 - (void)slk_unregisterNotifications
@@ -783,6 +934,9 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextViewTextDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SLKTextViewContentSizeDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIContentSizeCategoryDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextViewTextDidBeginEditingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextViewTextDidEndEditingNotification object:nil];
+
 }
 
 
@@ -793,7 +947,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     [self slk_unregisterNotifications];
     
     [self slk_unregisterFrom:self.layer forSelector:@selector(position)];
-    [self slk_unregisterFrom:self.leftButton.imageView forSelector:@selector(image)];
+    [self slk_unregisterFrom:self.flipButton.imageView forSelector:@selector(image)];
     [self slk_unregisterFrom:self.rightButton.titleLabel forSelector:@selector(font)];
 }
 

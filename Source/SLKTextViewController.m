@@ -309,7 +309,6 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         _textInputbar = [[SLKTextInputbar alloc] initWithTextViewClass:self.textViewClass];
         _textInputbar.translatesAutoresizingMaskIntoConstraints = NO;
         
-        [_textInputbar.leftButton addTarget:self action:@selector(didPressLeftButton:) forControlEvents:UIControlEventTouchUpInside];
         [_textInputbar.rightButton addTarget:self action:@selector(didPressRightButton:) forControlEvents:UIControlEventTouchUpInside];
         [_textInputbar.editorLeftButton addTarget:self action:@selector(didCancelTextEditing:) forControlEvents:UIControlEventTouchUpInside];
         [_textInputbar.editorRightButton addTarget:self action:@selector(didCommitTextEditing:) forControlEvents:UIControlEventTouchUpInside];
@@ -363,7 +362,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 
 - (UIButton *)leftButton
 {
-    return _textInputbar.leftButton;
+    return _textInputbar.flipButton;
 }
 
 - (UIButton *)rightButton
@@ -613,17 +612,17 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (void)dismissKeyboard:(BOOL)animated
 {
     // Dismisses the keyboard from any first responder in the window.
-    if (![self.textView isFirstResponder] && self.keyboardHC.constant > 0) {
+    if (![self.textInputbar isFirstResponder] && self.keyboardHC.constant > 0) {
         [self.view.window endEditing:NO];
     }
     
     if (!animated) {
         [UIView performWithoutAnimation:^{
-            [self.textView resignFirstResponder];
+            [self.textInputbar resignFirstResponder];
         }];
     }
     else {
-        [self.textView resignFirstResponder];
+        [self.textInputbar resignFirstResponder];
     }
 }
 
@@ -708,7 +707,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     }
     
     if (self.textView.selectedRange.length > 0) {
-        if (self.isAutoCompleting && [self shouldProcessTextForAutoCompletion:self.textView.text]) {
+        if (self.isAutoCompleting && [self shouldProcessTextForAutoCompletion]) {
             [self cancelAutoCompletion];
         }
         return;
@@ -946,7 +945,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     // Checking the keyboard status allows to keep the inputAccessoryView valid when still reacing the bottom of the screen.
     CGFloat bottomMargin = [self slk_appropriateBottomMargin];
     
-    if (![self.textView isFirstResponder] || (self.keyboardHC.constant == bottomMargin && self.keyboardStatus == SLKKeyboardStatusDidHide)) {
+    if (![self.textInputbar isFirstResponder] || (self.keyboardHC.constant == bottomMargin && self.keyboardStatus == SLKKeyboardStatusDidHide)) {
 #if SLKBottomPanningEnabled
         if ([gesture.view isEqual:self.scrollViewProxy]) {
             if (gestureVelocity.y > 0) {
@@ -1315,7 +1314,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
    
     CGFloat bottomMargin = [self slk_appropriateBottomMargin];
     
-    if ([self ignoreTextInputbarAdjustment] || ([self.textView isFirstResponder] && self.keyboardHC.constant == bottomMargin)) {
+    if ([self ignoreTextInputbarAdjustment] || ([self.textInputbar isFirstResponder] && self.keyboardHC.constant == bottomMargin)) {
         return;
     }
     
@@ -1353,7 +1352,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     
     // Skips if it's not the expected textView and shouldn't force adjustment of the text input bar.
     // This will also dismiss the text input bar if it's visible, and exit auto-completion mode if enabled.
-    if (currentResponder && ![currentResponder isEqual:self.textView] && ![self forceTextInputbarAdjustmentForResponder:currentResponder]) {
+    if (currentResponder && ![currentResponder isKindOfClass:[SLKTextView class]] && ![self forceTextInputbarAdjustmentForResponder:currentResponder]) {
         [self slk_dismissTextInputbarIfNeeded];
         return;
     }
@@ -1382,7 +1381,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     }
     
     // Hides the auto-completion view if the keyboard is being dismissed.
-    if (![self.textView isFirstResponder] || status == SLKKeyboardStatusWillHide) {
+    if (![self.textInputbar isFirstResponder] || status == SLKKeyboardStatusWillHide) {
         [self slk_hideAutoCompletionViewIfNeeded];
     }
     
@@ -1473,7 +1472,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     }
     
     // After showing keyboard, check if the current cursor position could diplay autocompletion
-    if ([self.textView isFirstResponder] && status == SLKKeyboardStatusDidShow && !self.isAutoCompleting) {
+    if ([self.textInputbar isFirstResponder] && status == SLKKeyboardStatusDidShow && !self.isAutoCompleting) {
         
         // Wait till the end of the current run loop
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1742,7 +1741,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 {
     NSString *text = self.textView.text;
     
-    if ((!self.isAutoCompleting && text.length == 0) || self.isTransitioning || ![self shouldProcessTextForAutoCompletion:text]) {
+    if ((!self.isAutoCompleting && text.length == 0) || self.isTransitioning || ![self shouldProcessTextForAutoCompletion]) {
         return;
     }
     
@@ -2193,7 +2192,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gesture
 {
     if ([gesture isEqual:self.singleTapGesture]) {
-        return [self.textView isFirstResponder] && ![self ignoreTextInputbarAdjustment];
+        return [self.textInputbar isFirstResponder] && ![self ignoreTextInputbarAdjustment];
     }
     else if ([gesture isEqual:self.verticalPanGesture]) {
         return self.keyboardPanningEnabled && ![self ignoreTextInputbarAdjustment];
