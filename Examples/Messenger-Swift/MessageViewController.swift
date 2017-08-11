@@ -60,7 +60,7 @@ class MessageViewController: SLKTextViewController {
         // Example's configuration
         self.configureDataSource()
         self.configureActionItems()
-        
+        self.tableView.keyboardDismissMode = .interactive
         // SLKTVC's configuration
         self.bounces = true
         self.shakeToClearEnabled = true

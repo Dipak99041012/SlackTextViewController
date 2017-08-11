@@ -56,6 +56,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 @property (nonatomic, getter=isHidden) BOOL hidden; // Required override
 @property (nonatomic, strong) SLKTextView *hiddenTextField;
 @property (nonatomic, strong) UITextField *inputField;
+@property (nonatomic, assign) BOOL updateConstraint;
 @end
 
 @implementation SLKTextInputbar
@@ -96,7 +97,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     self.charCountLabelNormalColor = [UIColor lightGrayColor];
     self.charCountLabelWarningColor = [UIColor redColor];
     
-    self.autoHideRightButton = YES;
+    self.autoHideRightButton = NO;
+    self.updateConstraint = NO;
     self.editorContentViewHeight = 38.0;
     self.contentInset = UIEdgeInsetsMake(5.0, 8.0, 5.0, 8.0);
     
@@ -701,14 +703,19 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     if (![notification.object isEqual:self.textView]) {
         return;
     }
-    CGSize leftButtonSize = [self.flipButton imageForState:self.flipButton.state].size;
-    self.leftButtonWC.constant = leftButtonSize.width;
-    self.leftButton1WC.constant = 0;
-    self.leftButton2WC.constant = 0;
-    self.leftButton3WC.constant = 0;
-    self.leftButton1HC.constant = 0;
-    self.leftButton2HC.constant = 0;
-    self.leftButton3HC.constant = 0;
+    
+    [UIView animateWithDuration:0.7 delay:0.2 usingSpringWithDamping:0.8 initialSpringVelocity:0.1 options:0 animations:^{
+        CGSize leftButtonSize = [self.flipButton imageForState:self.flipButton.state].size;
+        self.leftButtonWC.constant = leftButtonSize.width;
+        self.leftButton1WC.constant = 0;
+        self.leftButton2WC.constant = 0;
+        self.leftButton3WC.constant = 0;
+        self.leftButton1HC.constant = 0;
+        self.leftButton2HC.constant = 0;
+        self.leftButton3HC.constant = 0;
+        self.leftMarginWC.constant = -24;
+        [self layoutIfNeeded];
+    } completion:nil];
 
     // Do something
 }
@@ -719,18 +726,13 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     if (![notification.object isEqual:self.textView]) {
         return;
     }
-    self.leftButtonWC.constant = 0;
-
-    CGSize leftButtonSize1 = [self.flipButton imageForState:self.leftButton1.state].size;
-    CGSize leftButtonSize2 = [self.flipButton imageForState:self.leftButton2.state].size;
-    CGSize leftButtonSize3 = [self.flipButton imageForState:self.leftButton3.state].size;
-    self.leftButton1WC.constant = leftButtonSize1.height;
-    self.leftButton2WC.constant = leftButtonSize2.height;
-    self.leftButton3WC.constant = leftButtonSize3.height;
-    self.leftButton1HC.constant = leftButtonSize1.width;
-    self.leftButton2HC.constant = leftButtonSize2.width;
-    self.leftButton3HC.constant = leftButtonSize3.width;
-
+    [UIView animateWithDuration:0.7 delay:0.2 usingSpringWithDamping:0.8 initialSpringVelocity:0.1 options:0 animations:^{
+        self.leftButtonWC.constant = 0;
+        self.leftMarginWC.constant = 0;
+        self.updateConstraint = NO;
+        [self layoutIfNeeded];
+    } completion:nil];
+    
     // Do something
 }
 
@@ -758,10 +760,11 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     NSDictionary *metrics = @{@"top" : @(self.contentInset.top),
                               @"left" : @(self.contentInset.left),
                               @"right" : @(self.contentInset.right),
-                              @"padding":@(4)
+                              @"padding":@(8)
                               };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(0)]-(<=padding)-[leftButton1(0)]-(padding)-[leftButton2(0)]-(padding)-[leftButton3(0)]-(<=padding)-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[leftButton1(0)]-[leftButton2(0)]-[leftButton3(0)]-[leftButton(0)]-(<=left)-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
+    
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton1(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton2(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
@@ -846,8 +849,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
             self.leftButtonBottomMarginC3.constant = roundf((self.intrinsicContentSize.height - leftButtonSize.height) / 2.0) + self.slk_contentViewHeight / 2.0;
         }
         
-        self.leftButtonWC.constant = roundf(leftButtonSize.width);
-        self.leftMarginWC.constant = (leftButtonSize.width > 0) ? self.contentInset.left : zero;
+        
         
         self.rightButtonWC.constant = [self slk_appropriateRightButtonWidth];
         self.rightMarginWC.constant = [self slk_appropriateRightButtonMargin];
@@ -858,6 +860,22 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         self.rightButtonTopMarginC.constant = rightVerMargin;
         self.rightButtonBottomMarginC.constant = rightVerBottomMargin;
         
+        CGSize leftButtonSize1 = [self.flipButton imageForState:self.leftButton1.state].size;
+        CGSize leftButtonSize2 = [self.flipButton imageForState:self.leftButton2.state].size;
+        CGSize leftButtonSize3 = [self.flipButton imageForState:self.leftButton3.state].size;
+        self.leftButton1WC.constant = leftButtonSize1.height;
+        self.leftButton2WC.constant = leftButtonSize2.height;
+        self.leftButton3WC.constant = leftButtonSize3.height;
+        self.leftButton1HC.constant = leftButtonSize1.width ;
+        self.leftButton2HC.constant = leftButtonSize2.width ;
+        self.leftButton3HC.constant = leftButtonSize3.width ;
+        
+        if (self.updateConstraint) {
+            self.leftMarginWC.constant = (leftButtonSize1.width + leftButtonSize2.width + leftButtonSize3.width + (24)) * -1;
+            self.leftButtonWC.constant = roundf(leftButtonSize.width);
+        } else {
+            self.updateConstraint = YES;
+        }
     }
 }
 

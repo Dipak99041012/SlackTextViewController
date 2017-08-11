@@ -434,7 +434,7 @@
 					};
 					4F86BFC219F050AF007A3D4A = {
 						CreatedOnToolsVersion = 6.0.1;
-						DevelopmentTeam = S6MX3RA9ZM;
+						DevelopmentTeam = 5LHT984393;
 						LastSwiftMigration = 0800;
 					};
 					71BE10011A72F3130083EE32 = {
@@ -917,6 +917,7 @@
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 5LHT984393;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -926,7 +927,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.slack.Messenger;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mywickr;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Messenger-Shared/Bridge-Header.h";
@@ -944,12 +945,13 @@
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 5LHT984393;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				INFOPLIST_FILE = "Messenger-Swift/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.slack.Messenger;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mywickr;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Messenger-Shared/Bridge-Header.h";
