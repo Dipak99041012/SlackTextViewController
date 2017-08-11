@@ -152,7 +152,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 
 - (void)setInputView:(UIView *)inputView {
     _inputView = inputView;
-    _inputField.inputView = self.inputField;
+    _inputField.inputView = inputView;
 }
 
 #pragma mark - Getters
@@ -218,6 +218,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         _leftButton1 = [UIButton buttonWithType:UIButtonTypeSystem];
         _leftButton1.translatesAutoresizingMaskIntoConstraints = NO;
         _leftButton1.titleLabel.font = [UIFont systemFontOfSize:15.0];
+        [_leftButton1 addTarget:self action:@selector(didPressLeft1Button:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _leftButton1;
 }
@@ -735,6 +736,10 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     } else if (!self.textView.isFirstResponder && !self.hiddenTextField.isFirstResponder) {
         [self showoptions];
     }
+}
+
+- (void)didPressLeft1Button:(UIButton *)btn {
+    [self.inputField becomeFirstResponder];
 }
 
 - (void)hideOptions {

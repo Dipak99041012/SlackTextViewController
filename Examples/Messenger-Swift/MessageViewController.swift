@@ -109,6 +109,9 @@ class MessageViewController: SLKTextViewController {
         self.textView.registerMarkdownFormattingSymbol("`", withTitle: "Code")
         self.textView.registerMarkdownFormattingSymbol("```", withTitle: "Preformatted")
         self.textView.registerMarkdownFormattingSymbol(">", withTitle: "Quote")
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
+        view.backgroundColor = UIColor.red
+        self.textInputbar.inputView = view
     }
     
     
