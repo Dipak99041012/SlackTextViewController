@@ -128,7 +128,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)endTextEdition;
 
+/**
+ remove Custom keyboard view
+ */
+- (void)removeInputView:(UIView *)inputView;
 
+/**
+ show custom input/ keyboard view 
+ */
+- (void)showCustomInputView:(UIView *)inputView;
 #pragma mark - Text Counting
 ///------------------------------------------------
 /// @name Text Counting
