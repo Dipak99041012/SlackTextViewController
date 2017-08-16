@@ -362,7 +362,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 
 - (UIButton *)leftButton
 {
-    return _textInputbar.flipButton;
+    return _textInputbar.leftButton1;
 }
 
 - (UIButton *)rightButton
