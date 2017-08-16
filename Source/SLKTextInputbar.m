@@ -792,10 +792,10 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     NSDictionary *metrics = @{@"top" : @(self.contentInset.top),
                               @"left" : @(self.contentInset.left),
                               @"right" : @(self.contentInset.right),
-                              @"padding":@(8)
+                              @"padding":@(4)
                               };
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[leftButton1(0)]-[leftButton2(0)]-[leftButton3(0)]-[leftButton(0)]-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[leftButton1(0)]-0-[leftButton2(0)]-0-[leftButton3(0)]-[leftButton(0)]-(<=8)-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
     
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton1(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
@@ -903,7 +903,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         self.leftButton3HC.constant = leftButtonSize3.width ;
         
         if (self.updateConstraint) {
-            self.leftMarginWC.constant = (leftButtonSize1.width + leftButtonSize2.width + leftButtonSize3.width + (24)) * -1;
+            self.leftMarginWC.constant = (leftButtonSize1.width + leftButtonSize2.width + leftButtonSize3.width + (8)) * -1;
             self.leftButtonWC.constant = roundf(leftButtonSize.width);
         } else {
             self.updateConstraint = YES;
