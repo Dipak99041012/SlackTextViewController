@@ -96,7 +96,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 {
     self.charCountLabelNormalColor = [UIColor lightGrayColor];
     self.charCountLabelWarningColor = [UIColor redColor];
-    
+    self.isFlipMode = YES;
     self.autoHideRightButton = NO;
     self.updateConstraint = NO;
     self.editorContentViewHeight = 38.0;
@@ -716,7 +716,9 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         return;
     }
     [self removeInputView];
-    [self hideOptions];
+    if (self.isFlipMode) {
+        [self hideOptions];
+    }
 
     // Do something
 }
@@ -727,14 +729,18 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     if (![notification.object isEqual:self.textView]) {
         return;
     }
-    [self showoptions];
+    if (self.isFlipMode) {
+        [self showoptions];
+    }
 }
 
 - (void)didPressFlipButton:(UIButton *)btn {
-    if (self.textView.isFirstResponder) {
-        [self.hiddenTextField becomeFirstResponder];
-    } else if (!self.textView.isFirstResponder && !self.hiddenTextField.isFirstResponder) {
-        [self showoptions];
+    if (self.isFlipMode) {
+        if (self.textView.isFirstResponder) {
+            [self.hiddenTextField becomeFirstResponder];
+        } else if (!self.textView.isFirstResponder && !self.hiddenTextField.isFirstResponder) {
+            [self showoptions];
+        }
     }
 }
 

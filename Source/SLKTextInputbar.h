@@ -109,6 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** A Boolean value indicating whether the control is in edit mode. */
 @property (nonatomic, getter = isEditing) BOOL editing;
 
+@property (nonatomic, assign) BOOL isFlipMode;
 /**
  Verifies if the text can be edited.
  
