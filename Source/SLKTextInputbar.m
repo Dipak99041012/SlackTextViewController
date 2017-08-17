@@ -148,12 +148,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     return YES;
 }
 
-#pragma mark - Setter
 
-- (void)setInputView:(UIView *)inputView {
-    _inputView = inputView;
-    _inputField.inputView = inputView;
-}
 
 #pragma mark - Getters
 
@@ -265,6 +260,8 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 - (UITextView *)hiddenTextField {
     if (!_hiddenTextField) {
         _hiddenTextField = [[SLKTextView alloc] init];
+        _hiddenTextField.keyboardType = self.textView.keyboardType;
+        _hiddenTextField.keyboardAppearance = self.textView.keyboardAppearance;
     }
     return _hiddenTextField;
 }
@@ -718,6 +715,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     if (![notification.object isEqual:self.textView]) {
         return;
     }
+    [self removeInputView];
     [self hideOptions];
 
     // Do something
@@ -741,12 +739,14 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 }
 
 - (void)showCustomInputView:(UIView *)inputView {
-    _inputView = inputView;
+    [self.inputField resignFirstResponder];
+    self.inputField.inputView = inputView;
     [self.inputField becomeFirstResponder];
 }
 
-- (void)removeInputView:(UIView *)inputView {
-    _inputView = nil;
+- (void)removeInputView{
+    [self.textView becomeFirstResponder];
+    [self.inputField resignFirstResponder];
     self.inputField.inputView = nil;
 }
 
@@ -760,7 +760,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
         self.leftButton1HC.constant = 0;
         self.leftButton2HC.constant = 0;
         self.leftButton3HC.constant = 0;
-        self.leftMarginWC.constant = -24;
+        self.leftMarginWC.constant =  -24;
         [self layoutIfNeeded];
     } completion:nil];
 

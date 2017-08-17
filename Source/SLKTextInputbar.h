@@ -72,7 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** The most appropriate height calculated based on the amount of lines of text and other factors. */
 @property (nonatomic, readonly) CGFloat appropriateHeight;
 
-@property (nonatomic, strong) UIView *inputView;
 #pragma mark - Initialization
 ///------------------------------------------------
 /// @name Initialization
@@ -131,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  remove Custom keyboard view
  */
-- (void)removeInputView:(UIView *)inputView;
+- (void)removeInputView;
 
 /**
  show custom input/ keyboard view 
